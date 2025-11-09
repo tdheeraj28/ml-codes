@@ -1,0 +1,46 @@
+!pip install keras-visualizer
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+import matplotlib.pyplot as plt
+df=pd.read_csv("pima-indians-diabetes.data.csv")
+df.head()
+x=df.drop(columns=["1"])
+y=df["1"]
+x_train,x_test,y_train,y_test=train_test_split(x,y,random_state=42,test_size=0.25)
+scaler=StandardScaler()
+x_train=scaler.fit_transform(x_train)
+x_test=scaler.transform(x_test)
+model=Sequential()
+model.add(Dense(12,input_dim=8,activation='relu'))
+model.add(Dense(8,activation='relu'))
+model.add(Dense(1,activation='sigmoid'))
+model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+history=model.fit(x_train,y_train,epochs=100,batch_size=10,verbose=1,validation_split=0)
+loss,acc=model.evaluate(x_test,y_test)
+print(f"Accuracy:{acc*100:.2f}%")
+for epochs,batch_size in [(50,5),(100,10),(150,20)]:
+    model=Sequential([
+        Dense(12,input_dim=8,activation='relu'),
+        Dense(8,activation='relu'),
+        Dense(1,activation='sigmoid')
+    ])
+    model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+    model.fit(x_train,y_train,epochs=epochs,batch_size=batch_size,verbose=0)
+    loss,acc=model.evaluate(x_test,y_test,verbose=0)
+    print(f"Epochs={epochs},Batch_size={batch_size}->Accuracy={acc*100:.2f}%")
+for activation in ['relu','tanh','sigmoid']:
+    model=Sequential([
+        Dense(12,input_dim=8,activation=activation),
+        Dense(8,activation=activation),
+        Dense(1,activation='sigmoid')
+    ])
+    model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+    model.fit(x_train,y_train,epochs=100,batch_size=10,verbose=0)
+    loss,acc=model.evaluate(x_test,y_test,verbose=0)
+    print(f"Activation:{activation},accuracy:{acc*100:.2f}%")
+from keras_visualizer import visualizer
+visualizer(model,file_format='png',view=True)
