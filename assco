@@ -1,0 +1,49 @@
+import pandas as pd 
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+from mlxtend.frequent_patterns import apriori, association_rules
+from mlxtend.preprocessing import TransactionEncoder
+data=pd.read_csv("Market_Basket_Optimisation.csv",header=None)
+transactions = []
+for i in range(data.shape[0]):
+    transaction = []
+    for j in range(data.shape[1]):
+        if (str(data.values[i, j]) != "nan"):
+            transaction.append(str(data.values[i, j]))
+            
+    transactions.append(transaction)
+te = TransactionEncoder()
+x = te.fit_transform(transactions)
+x
+df = pd.DataFrame(x, columns = te.columns_)
+df
+freq_itemset = apriori(df, min_support = 0.03, use_colnames = True)
+freq_itemset
+rules = association_rules(freq_itemset, metric = 'confidence', min_threshold = 0.2)
+rules
+G = nx.Graph()
+
+print("Total number of rules:", len(rules))
+
+for i, rule in rules.iterrows():
+    antecedents = ", ".join(rule['antecedents'])
+    consequents = ", ".join(rule['consequents'])
+    
+    confidence = rule['confidence'] 
+    
+    print(f"Rule: {antecedents} -> {consequents}, Confidence: {confidence:.3f}") 
+    
+    G.add_node(antecedents, label=antecedents)
+    G.add_node(consequents, label=consequents)
+    G.add_edge(antecedents, consequents, label=f"Confidence: {confidence:.3f}")
+
+plt.figure(figsize=(10, 10))
+pos = nx.spring_layout(G, k=15)
+nx.draw(G, pos , node_size = 6000 ,
+labels=nx.get_node_attributes(G, 'label'),  with_labels = True )
+nx.draw_networkx_edge_labels(G, pos , edge_labels=nx.get_edge_attributes(G, 'label'))
+plt.axis('off')
+plt.show()
+ 
+ 
