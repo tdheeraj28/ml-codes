@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error,mean_absolute_error,r2_score
+
+df=pd.read_csv("temperatures.csv")
+print(df.describe())
+sh=df.shape
+print("shape of data")
+print("no of samples",sh[0])
+print("no of features",sh[1])
+print(df.dtypes)
+print(df.head())
+print(df.tail())
+months = df.drop("YEAR",axis=1)
+
+for month in months :
+    X = df[['YEAR']]
+    y = df[month]
+
+    X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2, random_state = 42)
+
+    model = LinearRegression()
+    model.fit(X_train,y_train)
+
+    y_pred = model.predict(X_test)
+
+
+    mse = mean_squared_error(y_test,y_pred)
+    mae = mean_absolute_error(y_test,y_pred)
+    r2 = r2_score(y_test, y_pred)
+    
+    print(month + " Score")
+    print("Mean Squared Error (MSE):", mse)
+    print("Mean Absolute Error (MAE):", mae)
+    print("R-Square (R²):", r21)
+    
+    plt.scatter(X,y, color = 'blue', label = 'Actual Data')
+    plt.plot(X,model.predict(X), color = 'red', label = 'Regression Line')
+    plt.title(month + " Temperature Prediction")
+    plt.xlabel("Year")
+    plt.ylabel("Temperature (°C)")
+    plt.legend()
+    plt.show()
+
+
+X = df[['YEAR']]
+y = df['ANNUAL']
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2, random_state = 42)
+
+model = LinearRegression()
+model.fit(X_train,y_train)
+
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test,y_pred)
+mae = mean_absolute_error(y_test,y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(" MSE:", mse)
+print(" MAE:", mae)
+print("R²", r2)
+
+plt.scatter(X,y,color = 'blue', label = 'Actual Data')
+plt.plot(X,model.predict(X), color = 'red',label = 'Regression Line')
+plt.title("ANNUAL Temperature Prediction ")
+plt.xlabel("ANNUAL")
+plt.ylabel("Temperature (°C)")
+plt.legend()
+plt.show()
+
