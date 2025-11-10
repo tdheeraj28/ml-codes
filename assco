@@ -22,28 +22,13 @@ freq_itemset = apriori(df, min_support = 0.03, use_colnames = True)
 freq_itemset
 rules = association_rules(freq_itemset, metric = 'confidence', min_threshold = 0.2)
 rules
+ 
 G = nx.Graph()
+for _, r in rules.iterrows():
+    G.add_edge(", ".join(r['antecedents']), ", ".join(r['consequents']),
+               label=f"{r['confidence']:.2f}")
 
-print("Total number of rules:", len(rules))
-
-for i, rule in rules.iterrows():
-    antecedents = ", ".join(rule['antecedents'])
-    consequents = ", ".join(rule['consequents'])
-    
-    confidence = rule['confidence'] 
-    
-    print(f"Rule: {antecedents} -> {consequents}, Confidence: {confidence:.3f}") 
-    
-    G.add_node(antecedents, label=antecedents)
-    G.add_node(consequents, label=consequents)
-    G.add_edge(antecedents, consequents, label=f"Confidence: {confidence:.3f}")
-
-plt.figure(figsize=(10, 10))
-pos = nx.spring_layout(G, k=15)
-nx.draw(G, pos , node_size = 6000 ,
-labels=nx.get_node_attributes(G, 'label'),  with_labels = True )
-nx.draw_networkx_edge_labels(G, pos , edge_labels=nx.get_edge_attributes(G, 'label'))
-plt.axis('off')
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True, node_color='lightgreen', font_size=8)
+nx.draw_networkx_edge_labels(G, pos, edge_labels={(u,v):d['label'] for u,v,d in G.edges(data=True)}, font_size=7)
 plt.show()
- 
- 
